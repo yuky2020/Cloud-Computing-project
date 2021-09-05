@@ -1,20 +1,14 @@
-# sshd
-#
-# VERSION               0.0.2
+FROM ubuntu:latest
 
-FROM ubuntu:14.04
-MAINTAINER Sven Dowideit <SvenDowideit@docker.com>
+RUN apt update && apt install  openssh-server sudo -y
 
-RUN apt-get update && apt-get install -y openssh-server
-RUN mkdir /var/run/sshd
-RUN echo 'root:screencast' | chpasswd
-RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 test 
 
-# SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN  echo 'test:test' | chpasswd
 
-ENV NOTVISIBLE "in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
+RUN service ssh start
 
 EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+
+CMD ["/usr/sbin/sshd","-D"]
+
